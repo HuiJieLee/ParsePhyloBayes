@@ -126,8 +126,7 @@ o.estb.group8
 0  ... nodata: 1 means approximate prior, 0 means approximate posterior
 0 ...commonbrown: 1 if all genes have same tendency to change rate, 0 
 ```
-
-    Note: the `commonbrown` parameter should be set to 0 so that different genes (substitution types) are allowed to change rates independently.
+Note: the `commonbrown` parameter should be set to 0 so that different genes (substitution types) are allowed to change rates independently.
     
 4. Copy ``o.estb.group*`` files to the folder with compiled multidivtime. Run the Multidivtime analysis with the following commend:
 ```
