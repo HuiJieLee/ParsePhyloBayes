@@ -1,0 +1,23 @@
+(((human:0.0,orangutan:0.0):0.0,(rhesus:0.0,baboon:0.0):0.0):0.5,bushbaby:0.5);
+list of names and tip numbers follows:
+human  0
+orangutan  1
+rhesus  2
+baboon  3
+marmoset  4
+bushbaby  5
+list of child1, child2, ..., parent follows:
+2 3 6
+0 1 7
+7 6 8
+8 4 9
+variance-covariance matrix follows:
+0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0.5 0 0 0.5 
+0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0.5 0 0 0.5 

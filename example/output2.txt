@@ -1,0 +1,1 @@
+(((A_A,B_A)_A,(C_A,D_A)_A)_A,((E_A,F_A)_A,G_A)_A)_A;

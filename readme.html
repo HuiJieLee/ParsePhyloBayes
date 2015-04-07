@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>ParsePhyloBayes</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+
+
+
+
+</head>
+
+<body>
+<h1>ParsePhyloBayes</h1>
+
+<h2>Overview</h2>
+
+<p>This program is developed for the manuscript &ldquo;Relaxing the Molecular Clock to Different Degrees for Different Substitution Types&#39;&#39; in Molecular and Evolutionary Biology. 
+It reads a sample of substitution histories (mappings) from PhyloBayes. 
+It then computes the substitution lengths for context-independent or context-dependent substitutions for branches and the variance-covariance matrices of substitution lengths between branches. 
+It produces the outputs in the format of the inputs for Multidivtime so that each 
+substitution type can be treated as a single gene (locus) in Multidivtime.</p>
+
+<h2>Getting Started</h2>
+
+<h3>PhyloBayes</h3>
+
+<ol>
+<li><p>Prepare the nucleotide sequence alignment in the PHYLIP format. Notice that the alignment should include the sequences from the outgroup species.</p>
+
+<pre><code>&lt;number_of_taxa&gt; &lt;number_of_sites&gt;
+taxon1 sequence1 ...
+taxon2 sequence2 ...
+...
+</code></pre></li>
+<li><p>Prepare the unrooted phylogenetic tree topology in NEWICK format. Save it as a .tre file.</p></li>
+<li><p>Download and install the modified version of PhyloBayes MPI 1.5a from
+<a href="http://megasun.bch.umontreal.ca/People/lartillot/www/index.htm">http://megasun.bch.umontreal.ca/People/lartillot/www/index.htm</a>.</p></li>
+<li><p>Run PhyloBayes analyses at least twice using the following command.</p>
+
+<pre><code>mpirun -np &lt;n&gt; pb_mpi  -gtr -cat -dgam 4 -d &lt;dataset&gt; -T &lt;treetopology&gt; &lt;chainname&gt;
+</code></pre>
+
+<p>More commands for PhyloBayes are available at <a href="http://megasun.bch.umontreal.ca/People/lartillot/www/pb_mpiManual1.5.pdf">http://megasun.bch.umontreal.ca/People/lartillot/www/pb_mpiManual1.5.pdf</a>.</p></li>
+<li><p>Assess the MCMC convergence by comparing two independent chains using <strong>tracecomp</strong> from PhyloBayes.</p></li>
+<li><p>Generate substitution histories (mappings) with the following command.</p>
+
+<pre><code>mpirun -np &lt;n&gt; readpb_mpi -map &lt;chainname&gt;
+</code></pre>
+
+<p>This will produce a series of .map files, each is the substitution histories of a single site.</p></li>
+</ol>
+
+<h3>ParsePhyloBayes</h3>
+
+<ol>
+<li><p>Download <strong>parsePhyloBayes.jar</strong> and copy it to the directory that contains the .map files generated from PhyloBayes.</p></li>
+<li><p>Prepare a text document that records the outgroup information. The outgroup information should be in the following format.</p>
+
+<pre><code>&lt;number_of_outgroup_species&gt;
+&lt;outgroup_species1&gt;
+&lt;outgroup_species2&gt;
+...
+</code></pre></li>
+<li><p>Run parsePhyloBayes.jar using the following command.</p>
+
+<pre><code>java -jar parsePhyloBayes.jar &lt;number_of_sites&gt; &lt;number_of_samples_per_site&gt; &lt;chainname&gt; &lt;context_dependent_or_independent&gt; &lt;outgroup_file&gt;
+</code></pre>
+
+<ul>
+<li>The <code>&lt;number_of_sites&gt;</code> argument is the length of the sequence alignment.</li>
+<li>The <code>&lt;number_of_samples_per_site&gt;</code> argument is the number of substitution history samples generated per site. This number can be checked from the .map files.</li>
+<li>The <code>&lt;chainname&gt;</code> argument is the chain name specified in PhyloBayes analyses.</li>
+<li>The <code>&lt;context_independent_or_dependent&gt;</code> argument can be either 1 or 2, where 1 is the context-independent case, and 2 is the context-dependent case, respectively. The definition of substitution types for context-independent or context-dependent substitutions can be found in the manuscript Table 1 and Table 2.</li>
+</ul></li>
+<li><p>The outputs of parsePhyloBayes.jar include</p>
+
+<ul>
+<li>o.estb.type </li>
+<li>o.estb.group </li>
+<li>substitutionLength.txt</li>
+</ul>
+
+<p>o.estb.type and o.estb.group can be used as the inputs to Multidivtime. The analyses in the manuscript used o.estb.group as inputs to Multidivtime.</p>
+
+<p>o.estb.type for single nucleotide substitutions are for 12 different substitution types.
+o.estb.group for single nucleotide substitutions are for 6 different substitution types (combine strand symmetric substitution types).</p>
+
+<p>o.estb.type for triple site nucleotide substitutions are for 4 different substitution types (non-CpG/CpG transversion/transition).
+o.estb.group for triplet site nucleotide substitutions are for 9 different substitution types (defined in manuscript).</p>
+
+<p>substitutionLength.txt file stores the estimated substitution lengths for each strand symmetric substitution type. This makes it easier to report results.</p></li>
+</ol>
+
+<h3>Multidivtime</h3>
+
+<ol>
+<li><p>Prepare a .tree file that contains the rooted tree topology including the outgroup species.</p></li>
+<li><p>Download and compile the Multidivtime software from <a href="http://statgen.ncsu.edu/thorne/multidivtime.html">http://statgen.ncsu.edu/thorne/multidivtime.html</a>. More details are 
+in the website given above.</p></li>
+<li><p>Edit the <code>multicntrl.dat</code> file. One example multicntrl.dat file is as follows.</p>
+
+<pre><code>/* the following lines are all needed in multicntrl.dat ...
+do not add or delete lines but change entry on left of each
+line as you see fit ...  */
+9species.tree
+9 ... number of genes ... FOLLOWING LINES CONTAIN ONLY NAMES OF DATA FILES
+o.estb.group0
+o.estb.group1
+o.estb.group2
+o.estb.group3
+o.estb.group4
+o.estb.group5
+o.estb.group6
+o.estb.group7
+o.estb.group8
+10000 ... numsamps: How many times should the Markov chain be sampled?
+1000 ... sampfreq: How many cycles between samples of the Markov chain?
+10000000 ... burnin: How many cycles before the first sample of Markov chain?
+44.2 ... rttm: a priori expected number of time units between tip and root
+0.1 ... rttmsd: standard deviation of prior for time between tip and root
+0.0012 ... rtrate: mean of prior distribution for rate at root node
+0.0012 ... rtratesd: standard deviation of prior for rate at root node
+0.0 ... brownmean: mean of prior for brownian motion constant &quot;nu&quot;
+0.0 ... brownsd: std. deviation of prior for brownian motion constant &quot;nu&quot;
+/* the following lines are all needed (i.e., do not delete them) but you may 
+not want to alter entries unless you are familiar with the computer code */
+1.0  ... minab: parameter for beta prior on proportional node depth
+0.1 ... newk: parameter in Markov chain proposal step
+0.5 ... othk: parameter in Markov chain proposal step
+0.5 ... thek: parameter in Markov chain proposal step
+100.0 ... bigtime: number higher than time units between tip and root could be in your wildest imagination
+/* the program will expect the entry below to be the number of constraints
+and then the specified number of constraints should follow on
+subsequent lines */
+0 ... number of constraints on node times
+0 ... number of tips which are not collected at time 0
+0  ... nodata: 1 means approximate prior, 0 means approximate posterior
+0 ...commonbrown: 1 if all genes have same tendency to change rate, 0 
+</code></pre>
+
+<p>Note: the <code>commonbrown</code> parameter should be set to 0 so that different genes (substitution types) are allowed to change rates independently.</p></li>
+<li><p>Copy <code>o.estb.group*</code> files to the folder with compiled multidivtime. Run the Multidivtime analysis with the following commend:</p>
+
+<pre><code>multidivtime &lt;name&gt; &gt; &amp; out.&lt;name&gt; &amp;
+</code></pre></li>
+</ol>
+
+</body>
+
+</html>
+
